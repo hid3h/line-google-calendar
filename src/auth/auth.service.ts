@@ -3,15 +3,16 @@ import { OAuth2Client } from "google-auth-library";
 
 // scopeに使える文字列をenumで定義しておく
 export enum GoogleOAuth2Scope {
-  CALNDER_EVENT_READONLY = "https://www.googleapis.com/auth/calendar.events.readonly",
+  CALNDAR_EVENT_READONLY = "https://www.googleapis.com/auth/calendar.events.readonly",
+  CALENDAR_READONLY = "https://www.googleapis.com/auth/calendar.readonly",
 }
 
 @Injectable()
 export class AuthService {
-  private readonly oAuth2Client: OAuth2Client;
+  private readonly oauth2Client: OAuth2Client;
 
   constructor() {
-    this.oAuth2Client = new OAuth2Client(
+    this.oauth2Client = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
       `${process.env.BASE_URL}/auth/google/callback`,
@@ -19,17 +20,27 @@ export class AuthService {
   }
 
   generateAuthUrl({ scope }: { scope: GoogleOAuth2Scope[] }) {
-    return this.oAuth2Client.generateAuthUrl({
+    return this.oauth2Client.generateAuthUrl({
       access_type: "offline",
       scope,
     });
   }
 
   async saveRefreshToken(authCode: string) {
-    const { tokens } = await this.oAuth2Client.getToken(authCode);
+    const { tokens } = await this.oauth2Client.getToken(authCode);
 
     console.log("tokens", tokens);
 
     // TODO: refresh tokenをDBに保存する
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<string> {
+    this.oauth2Client.setCredentials({
+      refresh_token: refreshToken,
+    });
+
+    const { credentials } = await this.oauth2Client.refreshAccessToken();
+    console.log("credentials", credentials);
+    return credentials.access_token;
   }
 }
