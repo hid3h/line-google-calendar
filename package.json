@@ -20,8 +20,10 @@
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.3.2",
     "@nestjs/core": "^9.0.5",
     "@nestjs/platform-express": "^9.0.0",
+    "google-auth-library": "^8.8.0",
     "hbs": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5"
